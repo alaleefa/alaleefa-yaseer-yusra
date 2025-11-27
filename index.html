@@ -223,7 +223,6 @@ document.querySelectorAll('.siteImage').forEach(img => {
 });
 
 // =================== نظام التعليقات بواسطة Google Sheet (مشترك ومُعدَّل) ===================
-// 🛑 تم تحديث الرابط برابط Google Apps Script الخاص بك 🛑
 const API_URL = "https://script.google.com/macros/s/AKfycbxrBmJPX7sfE_QOtIaed2_sSx4vB3ON3SV5ZMWn83DHj1gK8FVsIeod0G9MT5r50G_c/exec"; 
 
 let statusSelected = "";
@@ -244,8 +243,8 @@ async function loadComments() {
         const response = await fetch(API_URL + "?action=getComments"); 
         allData = await response.json();
         
-        // 1. تصفية التعليقات الأساسية (replyTo فارغ)
-        mainComments = allData.filter(item => !item.replyTo);
+        // 1. تصفية التعليقات الأساسية (replyTo فارغ أو غير موجود)
+        mainComments = allData.filter(item => !item.replyTo || item.replyTo === "");
         mainComments.reverse(); // عرض الأحدث أولاً
         
         // 2. إحصاء عدد الردود لكل تعليق أساسي وتخزينها
@@ -266,7 +265,6 @@ async function loadComments() {
 function formatDate(dateString) {
     if (!dateString) return '';
     try {
-        // يتم التعامل مع تنسيقات التاريخ المختلفة التي قد تأتي من قوقل شيت (رقم أو سلسلة نصية)
         const date = dateString.includes('/') ? new Date(dateString) : new Date(parseFloat(dateString));
         if (isNaN(date)) return dateString;
 
@@ -359,7 +357,7 @@ function addReplyListeners() {
 async function sendReply(e) {
     const form = e.target.closest('.reply-form');
     const replyBtn = form.previousElementSibling;
-    const parentId = replyBtn.dataset.commentId; // استخدام ID التعليق الأصلي كـ replyTo
+    const parentId = replyBtn.dataset.commentId; 
 
     const replyNameInput = form.querySelector('.reply-name-input');
     const replyMsgInput = form.querySelector('.reply-msg-input');
@@ -372,13 +370,12 @@ async function sendReply(e) {
         return;
     }
     
-    // إرسال الرد إلى Google Sheet API
     const dataToSend = {
         action: 'addComment', 
         name: replyName,
         comment: replyMsg,
-        replyTo: parentId, // ربط الرد بالتعليق الأساسي
-        status: "" // الردود لا تحتاج حقل حالة
+        replyTo: parentId, 
+        status: "" 
     };
 
     try {
@@ -391,7 +388,6 @@ async function sendReply(e) {
             body: JSON.stringify(dataToSend)
         });
         
-        // مسح الحقول وإعادة تحميل التعليقات
         replyNameInput.value = "";
         replyMsgInput.value = "";
         form.style.display = 'none';
@@ -404,22 +400,23 @@ async function sendReply(e) {
 }
 
 
-// وظيفة إرسال التعليق الأساسي 
+// وظيفة إرسال التعليق الأساسي (تم التعديل ليكون الاسم والحالة إجباريين والتعليق اختياري)
 document.getElementById("sendComment").onclick = async () => {
     let name = document.getElementById('cName').value.trim();
     let msg = document.getElementById('cMsg').value.trim();
+    
+    // 🛑 الشرط الجديد: الاسم والحالة إجباريان 🛑
     if (!name || !statusSelected) {
-        alert("يرجى إدخال الاسم والحالة قبل التعليق");
+        alert("يرجى إدخال الاسم واختيار الحالة (حاضر/يعتذر) قبل الإرسال.");
         return;
     }
     
-    // إرسال التعليق إلى Google Sheet API
     let data = { 
         action: 'addComment', 
         name, 
-        comment: msg, 
+        comment: msg, // يُرسل حتى لو كان فارغاً
         status: statusSelected,
-        replyTo: "" // التعليق الأساسي
+        replyTo: "" 
     }; 
       
     try {
@@ -432,7 +429,6 @@ document.getElementById("sendComment").onclick = async () => {
             body: JSON.stringify(data)
         });
 
-        // مسح الحقول وإعادة التعيين
         document.getElementById('cName').value = "";
         document.getElementById('cMsg').value = "";
         statusSelected = "";
