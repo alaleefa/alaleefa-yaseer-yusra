@@ -25,7 +25,7 @@ img { -webkit-user-drag: none; user-drag: none; -webkit-touch-callout: none; poi
 
 #page2 img.siteImage { margin-top:630px; max-width:50%; cursor:pointer; z-index: 10; }
 
-#countdown { display:flex; gap:10px; justify-content:center; position:absolute; top:50%; left:50%; transform:translateX(-50%); z-index:10; }
+#countdown { display:flex; gap:10px; justify-content:center; position:absolute; top:23%; left:50%; transform:translateX(-50%); z-index:10; }
 .countBox { width:50px; height:50px; display:flex; flex-direction:column; justify-content:center; align-items:center; border-radius:6px; background: rgba(255,255,255,0.2); color:#9d8d69; font-size:16px; }
 .countBox small { font-size:12px; }
 
@@ -137,8 +137,7 @@ button { padding:6px 12px; border:none; border-radius:5px; cursor:pointer; backg
       <div class="countBox"><span id="d">0</span><small>يوم</small></div>
       <div class="countBox"><span id="h">0</span><small>ساعة</small></div>
       <div class="countBox"><span id="m">0</span><small>دقيقة</small></div>
-      <div class="countBox"><span id="s">0</small> ثانية</small></div>
-    </div>
+      <div class="countBox"><span id="s">0</span><small>ثانية</small></div>
   </div>
     <div class="section">
     <video class="page-video" src="page4.mp4" muted loop autoplay playsinline></video>
@@ -223,7 +222,7 @@ document.querySelectorAll('.siteImage').forEach(img => {
 });
 
 // =================== نظام التعليقات بواسطة Google Sheet (مشترك ومُعدَّل) ===================
-const API_URL = "https://script.google.com/macros/s/AKfycbxrBmJPX7sfE_QOtIaed2_sSx4vB3ON3SV5ZMWn83DHj1gK8FVsIeod0G9MT5r50G_c/exec"; 
+const API_URL = "https://script.google.com/macros/s/AKfycbwaTVEyiacEWESz4ICwitjq1k1sUr5z8LmEr3izTupzfxHH8q8XQ59mKDFEXV-0TC3C/exec"; 
 
 let statusSelected = "";
 let allData = []; // لتخزين جميع البيانات (التعليقات والردود)
