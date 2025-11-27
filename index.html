@@ -40,8 +40,71 @@ textarea#cMsg { min-height:80px; resize:none; }
 .statusSelected { background-color:#9d8d69; color:#000; }
 button { padding:6px 12px; border:none; border-radius:5px; cursor:pointer; background:#9d8d69; color:#000; font-weight:bold; margin-top:5px; font-size:14px; }
 #prev, #next { width:80px; margin:10px 5px; font-size:14px; display:inline-block; }
-.commentItem { border:1px solid #9d8d69; border-radius:8px; padding:8px; background:#fff; color:#000; font-size:14px; position:relative; margin-bottom:8px; }
+
+/* تنسيقات التعليقات والردود الجديدة */
+.commentItem { 
+    border:1px solid #9d8d69; 
+    border-radius:8px; 
+    padding:8px; 
+    background:#fff; 
+    color:#000; 
+    font-size:14px; 
+    position:relative; 
+    margin-bottom:8px; 
+}
+.commentItem .main-info {
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+}
+.commentItem button.reply-btn {
+    padding: 3px 8px;
+    font-size: 12px;
+    background: #d4c094; /* لون مختلف لزر الرد */
+    color: #000;
+    margin-top: 5px;
+}
 .timeInfo { font-size:12px; color:#999; margin-top:3px; }
+
+/* تنسيق الردود الفرعية */
+.replies-container {
+    margin-top: 10px;
+    padding-right: 15px; /* لإعطاء إزاحة للردود */
+    border-right: 2px solid #9d8d69;
+}
+.reply-item {
+    background: #f8f8f8;
+    border-radius: 6px;
+    padding: 6px;
+    margin-bottom: 5px;
+    font-size: 13px;
+    color: #333;
+}
+.reply-item b {
+    color: #9d8d69; /* لون مميز لاسم الراد */
+}
+/* تنسيق نموذج الرد */
+.reply-form {
+    display: none; /* مخفي افتراضياً */
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px dashed #9d8d69;
+    border-radius: 5px;
+    background: #f9f9f9;
+}
+.reply-form input, .reply-form textarea {
+    margin-bottom: 5px;
+    border: 1px solid #d4c094;
+    background: #fff;
+    color: #000;
+}
+.reply-form button {
+    width: 100%;
+    padding: 5px;
+    background: #9d8d69;
+    color: #000;
+}
+
 
 #pageFooter { width: 100%; position: absolute; bottom: 50px; left: 0; padding: 5px 0; text-align: center; font-size: 15px; background: rgba(0, 0, 0, 0.4); color: #aaa; z-index: 100; }
 #pageFooter a { color: #9d8d69; text-decoration: none; font-weight: bold; }
@@ -159,8 +222,8 @@ document.querySelectorAll('.siteImage').forEach(img => {
     img.onclick = () => { window.open('https://maps.app.goo.gl/fipYv9RUQYJmwTDq6','_blank'); };
 });
 
-// =================== نظام التعليقات بواسطة Local Storage ===================
-const STORAGE_KEY = 'invitationComments'; // مفتاح الحفظ في التخزين المحلي
+// =================== نظام التعليقات بواسطة Local Storage (مُعدَّل للردود) ===================
+const STORAGE_KEY = 'invitationComments'; 
 
 let statusSelected = "";
 let comments = [];
@@ -175,16 +238,15 @@ document.querySelectorAll('.statusOption').forEach(op => {
 });
 
 function loadComments() {
-    // تحميل التعليقات من Local Storage
     const savedComments = localStorage.getItem(STORAGE_KEY);
-    comments = savedComments ? JSON.parse(savedComments) : [];
+    // تعليقات جديدة تم تهيئة مصفوفة الردود لها
+    comments = savedComments ? JSON.parse(savedComments).map(c => ({...c, replies: c.replies || []})) : [];
     comments.reverse(); // عرض الأحدث أولاً
     renderComments();
 }
 
 function saveComments() {
-    // حفظ التعليقات في Local Storage
-    // نحفظها بالترتيب الأصلي ثم نعكسها للعرض
+    // حفظ التعليقات في Local Storage (بالترتيب الأصلي قبل العكس)
     const originalOrder = [...comments].reverse();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(originalOrder));
 }
@@ -198,17 +260,123 @@ function renderComments() {
     let start = pageIndex * 5;
     let selected = comments.slice(start, start + 5);
 
-    selected.forEach(c => {
+    selected.forEach((c, index) => {
         let div = document.createElement('div');
         div.className = 'commentItem';
+        
+        // المحتوى الأساسي للتعليق
         div.innerHTML = `
-            <b>${c.name}</b> (${c.status})<br>${c.msg || ''}<br>
-            <span class="timeInfo">${c.date} - ${c.time}</span>
+            <div class="main-info">
+                <b>${c.name}</b> (${c.status})<br>${c.msg || ''}<br>
+                <span class="timeInfo">${c.date} - ${c.time}</span>
+            </div>
+            <button class="reply-btn" data-comment-index="${index}">رد</button>
+            
+            <div class="reply-form">
+                <div class="formLabel">الاسم (للرد)</div>  
+                <input type="text" class="reply-name-input" placeholder="اسمك">
+                <div class="formLabel">التعليق (للرد)</div> 
+                <textarea class="reply-msg-input" placeholder="الرد..."></textarea>
+                <button class="send-reply-btn">إرسال الرد</button>
+            </div>
+            
+            <div class="replies-container">
+            </div>
         `;
+        
+        // إضافة الردود الفرعية
+        const repliesContainer = div.querySelector('.replies-container');
+        if (c.replies && c.replies.length > 0) {
+            c.replies.forEach(r => {
+                let replyDiv = document.createElement('div');
+                replyDiv.className = 'reply-item';
+                replyDiv.innerHTML = `
+                    <b>${r.name}:</b> ${r.msg}
+                    <span class="timeInfo" style="display:block;">${r.date} - ${r.time}</span>
+                `;
+                repliesContainer.appendChild(replyDiv);
+            });
+        }
+        
         list.appendChild(div);
+    });
+    
+    // إضافة المستمعين للأحداث بعد عرض التعليقات
+    addReplyListeners();
+}
+
+
+// دالة لتبديل عرض نموذج الرد
+function toggleReplyForm(btn) {
+    const form = btn.nextElementSibling; // نموذج الرد يأتي مباشرة بعد زر الرد
+    document.querySelectorAll('.reply-form').forEach(f => {
+        if (f !== form) {
+            f.style.display = 'none'; // إخفاء النماذج الأخرى
+        }
+    });
+    form.style.display = (form.style.display === 'block' ? 'none' : 'block');
+}
+
+// دالة لإضافة مستمعي الأحداث لأزرار الرد
+function addReplyListeners() {
+    document.querySelectorAll('.reply-btn').forEach(btn => {
+        btn.onclick = () => toggleReplyForm(btn);
+    });
+
+    document.querySelectorAll('.send-reply-btn').forEach(btn => {
+        btn.onclick = (e) => sendReply(e);
     });
 }
 
+function sendReply(e) {
+    const form = e.target.closest('.reply-form');
+    const commentItem = form.closest('.commentItem');
+    const replyBtn = commentItem.querySelector('.reply-btn');
+    const commentIndexInPage = parseInt(replyBtn.dataset.commentIndex);
+    
+    // حساب الفهرس الحقيقي للتعليق في مصفوفة 'comments'
+    const actualIndex = pageIndex * 5 + commentIndexInPage;
+    
+    const replyNameInput = form.querySelector('.reply-name-input');
+    const replyMsgInput = form.querySelector('.reply-msg-input');
+    
+    let replyName = replyNameInput.value.trim();
+    let replyMsg = replyMsgInput.value.trim();
+
+    if (!replyName || !replyMsg) {
+        alert("يرجى إدخال الاسم والتعليق للرد");
+        return;
+    }
+    
+    const now = new Date();
+    const dateOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
+    const timeOptions = { hour: '2-digit', minute: '2-digit' };
+    
+    let newReply = {
+        name: replyName,
+        msg: replyMsg,
+        date: now.toLocaleDateString('ar-EG', dateOptions),
+        time: now.toLocaleTimeString('ar-EG', timeOptions)
+    };
+    
+    // إضافة الرد إلى التعليق في مصفوفة 'comments'
+    // يجب التعامل مع الـ reverse: comments[actualIndex] هو التعليق الصحيح في الصفحة الحالية
+    if (!comments[actualIndex].replies) {
+        comments[actualIndex].replies = [];
+    }
+    comments[actualIndex].replies.unshift(newReply); // إضافة الرد في البداية
+    
+    saveComments();
+    
+    // مسح الحقول وإعادة عرض التعليقات لتضمين الرد الجديد
+    replyNameInput.value = "";
+    replyMsgInput.value = "";
+    form.style.display = 'none'; // إخفاء النموذج بعد الإرسال
+    renderComments();
+}
+
+
+// وظيفة إرسال التعليق الأساسي (لم تتغير كثيراً)
 document.getElementById("sendComment").onclick = () => {
     let name = document.getElementById('cName').value.trim();
     let msg = document.getElementById('cMsg').value.trim();
@@ -217,7 +385,6 @@ document.getElementById("sendComment").onclick = () => {
         return;
     }
     
-    // إعداد بيانات التعليق
     const now = new Date();
     const dateOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
     const timeOptions = { hour: '2-digit', minute: '2-digit' };
@@ -227,14 +394,13 @@ document.getElementById("sendComment").onclick = () => {
         status: statusSelected,
         msg: msg,
         date: now.toLocaleDateString('ar-EG', dateOptions),
-        time: now.toLocaleTimeString('ar-EG', timeOptions)
+        time: now.toLocaleTimeString('ar-EG', timeOptions),
+        replies: [] // إضافة مصفوفة الردود للتعليق الجديد
     };
     
-    // إضافة وحفظ التعليق
-    comments.unshift(newComment); // إضافة التعليق الجديد في البداية
+    comments.unshift(newComment); 
     saveComments();
     
-    // مسح الحقول وإعادة التعيين
     document.getElementById('cName').value = "";
     document.getElementById('cMsg').value = "";
     statusSelected = "";
