@@ -137,7 +137,7 @@ button { padding:6px 12px; border:none; border-radius:5px; cursor:pointer; backg
       <div class="countBox"><span id="d">0</span><small>يوم</small></div>
       <div class="countBox"><span id="h">0</span><small>ساعة</small></div>
       <div class="countBox"><span id="m">0</span><small>دقيقة</small></div>
-      <div class="countBox"><span id="s">0</span><small>ثانية</small></div>
+      <div class="countBox"><span id="s">0</small> ثانية</small></div>
     </div>
   </div>
     <div class="section">
@@ -294,9 +294,11 @@ function renderComments() {
         div.className = 'commentItem';
         
         // المحتوى الأساسي للتعليق
+        const statusText = c.status && c.status.trim() !== "" ? c.status : 'لم يحدد'; // 🛑 التعديل هنا: فحص الحالة قبل العرض
+        
         div.innerHTML = `
             <div class="main-info">
-                <b>${c.name}</b> (${c.status || 'لم يحدد'})<br>${c.comment || ''}<br>
+                <b>${c.name}</b> (${statusText})<br>${c.comment || ''}<br>
                 <span class="timeInfo">${formatDate(c.date)}</span>
             </div>
             <button class="reply-btn" data-comment-id="${c.id}">رد (${c.replies.length})</button>
@@ -400,12 +402,11 @@ async function sendReply(e) {
 }
 
 
-// وظيفة إرسال التعليق الأساسي (تم التعديل ليكون الاسم والحالة إجباريين والتعليق اختياري)
+// وظيفة إرسال التعليق الأساسي 
 document.getElementById("sendComment").onclick = async () => {
     let name = document.getElementById('cName').value.trim();
     let msg = document.getElementById('cMsg').value.trim();
     
-    // 🛑 الشرط الجديد: الاسم والحالة إجباريان 🛑
     if (!name || !statusSelected) {
         alert("يرجى إدخال الاسم واختيار الحالة (حاضر/يعتذر) قبل الإرسال.");
         return;
@@ -414,7 +415,7 @@ document.getElementById("sendComment").onclick = async () => {
     let data = { 
         action: 'addComment', 
         name, 
-        comment: msg, // يُرسل حتى لو كان فارغاً
+        comment: msg, 
         status: statusSelected,
         replyTo: "" 
     }; 
