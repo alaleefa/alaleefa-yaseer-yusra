@@ -1,462 +1,719 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>دعوة يسرى و ياسر</title>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
-<style>
-/* 🌟 الخط */
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Amiri', serif; }
-body { background:#1e1f0d; color:#fff; overflow-x:hidden; }
-img { -webkit-user-drag: none; user-drag: none; -webkit-touch-callout: none; pointer-events: auto; -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none; }
-#cover { position: fixed; top:0; left:0; width:100%; height:100%; background: url('cover-image.jpg') center center / cover no-repeat; display:flex; flex-direction: column; justify-content: center; align-items: center; z-index:1000; }
-#cover img#enterBtn { width:150px; cursor:pointer; transition: transform 0.3s; }
-#cover img#enterBtn:hover { transform: scale(1.05); }
-#guestName { margin-top:20px; font-size:20px; color:#fff; }
-#nav { position: fixed; bottom:10px; left:50%; transform:translateX(-50%); display:none; gap:5px; z-index:1000; }
-#nav img { width:25px; height:25px; cursor: pointer; border-radius: 8px; border: none; }
-#pages { display:none; scroll-snap-type: y mandatory; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دعوة يسرى و ياسر</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ==================== تنسيقات عامة ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Amiri', serif;
+        }
 
-.section { min-height:100vh; display:flex; justify-content:center; align-items:center; flex-direction: column; margin:0; padding:0; position:relative; scroll-snap-align: start; overflow: hidden; }
-.page-video { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; object-fit: cover; z-index: -1; }
+        body {
+            background: #1e1f0d;
+            color: #fff;
+            overflow-x: hidden;
+        }
 
-#commentsSection { width: 100%; display: flex; min-height: 100vh; flex-direction: column; justify-content: center; align-items: center; padding: 20px 0 80px 0; position: relative; }
+        /* منع سحب وتحديد الصور */
+        img {
+            -webkit-user-drag: none;
+            user-drag: none;
+            -webkit-touch-callout: none;
+            pointer-events: auto;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
 
-#page2 img.siteImage { margin-top:630px; max-width:50%; cursor:pointer; z-index: 10; }
+        /* ==================== شاشة الغلاف (Cover) ==================== */
+        #cover {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('cover-image.jpg') center center / cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
 
-#countdown { display:flex; gap:10px; justify-content:center; position:absolute; top:23%; left:50%; transform:translateX(-50%); z-index:10; }
-.countBox { width:50px; height:50px; display:flex; flex-direction:column; justify-content:center; align-items:center; border-radius:6px; background: rgba(255,255,255,0.2); color:#9d8d69; font-size:16px; }
-.countBox small { font-size:12px; }
+        #cover img#enterBtn {
+            width: 150px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
 
-#commentsWrapper { width:90%; max-width:500px; display:flex; flex-direction:column; gap:8px; padding:10px; border-radius:10px; background:#fff; color:#000; max-height: 60vh; overflow-y:auto; margin-top:150px; margin-bottom:150px; }
+        #cover img#enterBtn:hover {
+            transform: scale(1.05);
+        }
 
-#replyCount { color:#9d8d69; font-weight:bold; margin-bottom:5px; }
-.formLabel { margin:5px 0 0; font-size:14px; color:#9d8d69; }
-input, textarea { width:100%; padding:8px; border-radius:5px; border:1px solid #9d8d69; font-size:14px; margin-bottom:5px; }
-textarea#cMsg { min-height:80px; resize:none; }
-.statusContainer { display:flex; gap:10px; margin-bottom:5px; }
-.statusOption { cursor:pointer; flex:1; text-align:center; padding:8px; border:1px solid #9d8d69; border-radius:5px; color:#9d8d69; font-weight:bold; }
-.statusSelected { background-color:#9d8d69; color:#000; }
-button { padding:6px 12px; border:none; border-radius:5px; cursor:pointer; background:#9d8d69; color:#000; font-weight:bold; margin-top:5px; font-size:14px; }
-#prev, #next { width:80px; margin:10px 5px; font-size:14px; display:inline-block; }
+        #guestName {
+            margin-top: 20px;
+            font-size: 25px;
+            color: #fff;
+        }
 
-/* تنسيقات التعليقات والردود الجديدة */
-.commentItem { 
-    border:1px solid #9d8d69; 
-    border-radius:8px; 
-    padding:8px; 
-    background:#fff; 
-    color:#000; 
-    font-size:14px; 
-    position:relative; 
-    margin-bottom:8px; 
-}
-.commentItem .main-info {
-    padding-bottom: 5px;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 5px;
-}
-.commentItem button.reply-btn {
-    padding: 3px 8px;
-    font-size: 12px;
-    background: #d4c094; /* لون مختلف لزر الرد */
-    color: #000;
-    margin-top: 5px;
-}
-.timeInfo { font-size:12px; color:#999; margin-top:3px; }
+        /* ==================== شريط التنقل (Navigation) ==================== */
+        #nav {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 5px;
+            z-index: 1000;
+        }
 
-/* تنسيق الردود الفرعية */
-.replies-container {
-    margin-top: 10px;
-    padding-right: 15px; /* لإعطاء إزاحة للردود */
-    border-right: 2px solid #9d8d69;
-}
-.reply-item {
-    background: #f8f8f8;
-    border-radius: 6px;
-    padding: 6px;
-    margin-bottom: 5px;
-    font-size: 13px;
-    color: #333;
-}
-.reply-item b {
-    color: #9d8d69; /* لون مميز لاسم الراد */
-}
-/* تنسيق نموذج الرد */
-.reply-form {
-    display: none; /* مخفي افتراضياً */
-    margin-top: 10px;
-    padding: 10px;
-    border: 1px dashed #9d8d69;
-    border-radius: 5px;
-    background: #f9f9f9;
-}
-.reply-form input, .reply-form textarea {
-    margin-bottom: 5px;
-    border: 1px solid #d4c094;
-    background: #fff;
-    color: #000;
-}
-.reply-form button {
-    width: 100%;
-    padding: 5px;
-    background: #9d8d69;
-    color: #000;
-}
+        #nav img {
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+        }
 
+        /* ==================== صفحات المحتوى (Pages) ==================== */
+        #pages {
+            display: none;
+            scroll-snap-type: y mandatory;
+        }
 
-#pageFooter { width: 100%; position: absolute; bottom: 50px; left: 0; padding: 5px 0; text-align: center; font-size: 15px; background: rgba(0, 0, 0, 0.4); color: #aaa; z-index: 100; }
-#pageFooter a { color: #9d8d69; text-decoration: none; font-weight: bold; }
+        .section {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            scroll-snap-align: start;
+            overflow: hidden;
+        }
 
-</style>
+        .page-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        /* تنسيق خاص للصفحة الثانية */
+        #page2 img.siteImage {
+            margin-top: 630px;
+            max-width: 50%;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* ==================== العد التنازلي (Countdown) ==================== */
+        #countdown {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .countBox {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #9d8d69;
+            font-size: 16px;
+        }
+
+        .countBox small {
+            font-size: 12px;
+        }
+
+        /* ==================== قسم التعليقات (Comments) ==================== */
+        #commentsSection {
+            width: 100%;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0 80px 0;
+            position: relative;
+        }
+
+        #commentsWrapper {
+            width: 90%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px;
+            border-radius: 10px;
+            background: #fff;
+            color: #000;
+            max-height: 60vh;
+            overflow-y: auto;
+            margin-top: 150px;
+            margin-bottom: 150px;
+        }
+
+        #replyCount {
+            color: #9d8d69;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        /* تنسيقات النموذج */
+        .formLabel {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #9d8d69;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #9d8d69;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        textarea#cMsg {
+            min-height: 80px;
+            resize: none;
+        }
+
+        /* حالة الحضور */
+        .statusContainer {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .statusOption {
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #9d8d69;
+            border-radius: 5px;
+            color: #9d8d69;
+            font-weight: bold;
+        }
+
+        .statusSelected {
+            background-color: #9d8d69;
+            color: #000;
+        }
+
+        /* زر الإرسال */
+        button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #9d8d69;
+            color: #000;
+            font-weight: bold;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        #prev,
+        #next {
+            width: 80px;
+            margin: 10px 5px;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        /* تنسيقات التعليقات والردود */
+        .commentItem {
+            border: 1px solid #9d8d69;
+            border-radius: 8px;
+            padding: 8px;
+            background: #fff;
+            color: #000;
+            font-size: 14px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .commentItem .main-info {
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 5px;
+        }
+
+        .commentItem button.reply-btn {
+            padding: 3px 8px;
+            font-size: 12px;
+            background: #d4c094;
+            /* لون مختلف لزر الرد */
+            color: #000;
+            margin-top: 5px;
+        }
+
+        .timeInfo {
+            font-size: 12px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        /* تنسيق الردود الفرعية */
+        .replies-container {
+            margin-top: 10px;
+            padding-right: 15px;
+            /* لإعطاء إزاحة للردود */
+            border-right: 2px solid #9d8d69;
+        }
+
+        .reply-item {
+            background: #f8f8f8;
+            border-radius: 6px;
+            padding: 6px;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .reply-item b {
+            color: #9d8d69;
+            /* لون مميز لاسم الراد */
+        }
+
+        /* تنسيق نموذج الرد */
+        .reply-form {
+            display: none;
+            /* مخفي افتراضياً */
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px dashed #9d8d69;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+
+        .reply-form input,
+        .reply-form textarea {
+            margin-bottom: 5px;
+            border: 1px solid #d4c094;
+            background: #fff;
+            color: #000;
+        }
+
+        .reply-form button {
+            width: 100%;
+            padding: 5px;
+            background: #9d8d69;
+            color: #000;
+        }
+
+        /* ==================== التذييل (Footer) ==================== */
+        #pageFooter {
+            width: 100%;
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            padding: 5px 0;
+            text-align: center;
+            font-size: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            color: #aaa;
+            z-index: 100;
+        }
+
+        #pageFooter a {
+            color: #9d8d69;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-<div id="cover">
-  <img id="enterBtn" src="enter.png" alt="اضغط للدخول">
-  <div id="guestName">اسم المدعو/ة: علياء</div>
-</div>
-<div id="nav">
-  <img src="page1-icon.png" data-go="0">
-  <img src="page2-icon.png" data-go="1">
-  <img src="page3-icon.png" data-go="2">
-  <img src="page4-icon.png" data-go="3">
-  <img src="page5-icon.png" data-go="4">
-</div>
-<div id="pages">
-    <div class="section">
-    <video class="page-video" src="page1.mp4" muted loop autoplay playsinline></video>
-  </div>
-    <div class="section" id="page2">
-    <video class="page-video" src="page2.mp4" muted loop autoplay playsinline></video>
-    <img class="siteImage" src="site.png" alt="موقع المناسبة">
-  </div>
-    <div class="section" id="page3">
-    <video class="page-video" src="page3.mp4" muted loop autoplay playsinline></video>
-    <div id="countdown">
-      <div class="countBox"><span id="d">0</span><small>يوم</small></div>
-      <div class="countBox"><span id="h">0</span><small>ساعة</small></div>
-      <div class="countBox"><span id="m">0</span><small>دقيقة</small></div>
-      <div class="countBox"><span id="s">0</span><small>ثانية</small></div>
-  </div>
-    <div class="section">
-    <video class="page-video" src="page4.mp4" muted loop autoplay playsinline></video>
-  </div>
-    <div class="section" id="commentsSection">
-    <video class="page-video" src="page5.mp4" muted loop autoplay playsinline></video>
-<div id="commentsWrapper">
-  <div id="replyCount">عدد الردود: 0</div>
-  <div class="formLabel">الاسم</div>
-  <input type="text" id="cName" placeholder="مثال: نورة">
-  <div class="formLabel">الحالة</div>
-  <div class="statusContainer">
-    <div class="statusOption" data-status="يعتذر">يعتذر</div>
-    <div class="statusOption" data-status="حاضر">حاضر</div>
-  </div>
-  <div class="formLabel">التعليق (اختياري)</div>
-  <textarea id="cMsg" placeholder="مثال: بارك الله لكما…"></textarea>
-  <button id="sendComment">إرسال</button>
-  <div id="commentsList"></div>
-  <div style="text-align:center;"><button id="prev">قبل</button><button id="next">بعد</button></div>
-</div> <div id="pageFooter">
-    Created with love by
-    <a href="https://www.instagram.com/alaleefa?igsh=MW45Z21oM2x0YndjcQ==" target="_blank">@alaleefa_</a> /
-    <a href="https://api.whatsapp.com/send/?phone=%2B6281287575722&text&type=phone_number&app_absent=0&wame_ctl=1">
-        081287575722
-    </a>
-</div>    </div>
+    <div id="cover">
+        <img id="enterBtn" src="enter.png" alt="اضغط للدخول">
+        <div id="guestName">اسم المدعو/ة: علياء</div>
+    </div>
 
-</div>
-<audio id="music" src="music.mp3" loop></audio>
-<script>
-// منع الحفظ على الصور
-document.querySelectorAll('img').forEach(img => {
-    img.oncontextmenu = (e) => { e.preventDefault(); };
-});
+    <div id="nav">
+        <img src="page1-icon.png" data-go="0">
+        <img src="page2-icon.png" data-go="1">
+        <img src="page3-icon.png" data-go="2">
+        <img src="page4-icon.png" data-go="3">
+        <img src="page5-icon.png" data-go="4">
+    </div>
 
-const urlParams = new URLSearchParams(window.location.search);
-const guestName = urlParams.get('guest') || 'علياء';
-document.getElementById('guestName').innerText = `اسم المدعو/ة: ${guestName}`;
+    <div id="pages">
+        <div class="section">
+            <video class="page-video" src="page1.mp4" muted loop autoplay playsinline></video>
+        </div>
+        <div class="section" id="page2">
+            <video class="page-video" src="page2.mp4" muted loop autoplay playsinline></video>
+            <img class="siteImage" src="site.png" alt="موقع المناسبة">
+        </div>
+        <div class="section" id="page3">
+            <video class="page-video" src="page3.mp4" muted loop autoplay playsinline></video>
+            <div id="countdown">
+                <div class="countBox"><span id="d">0</span><small>يوم</small></div>
+                <div class="countBox"><span id="h">0</span><small>ساعة</small></div>
+                <div class="countBox"><span id="m">0</span><small>دقيقة</small></div>
+                <div class="countBox"><span id="s">0</span><small>ثانية</small></div>
+            </div>
+        </div>
+        <div class="section">
+            <video class="page-video" src="page4.mp4" muted loop autoplay playsinline></video>
+        </div>
+        <div class="section" id="commentsSection">
+            <video class="page-video" src="page5.mp4" muted loop autoplay playsinline></video>
+            <div id="commentsWrapper">
+                <div id="replyCount">عدد الردود: 0</div>
+                <div class="formLabel">الاسم</div>
+                <input type="text" id="cName" placeholder="مثال: نورة">
+                <div class="formLabel">الحالة</div>
+                <div class="statusContainer">
+                    <div class="statusOption" data-status="يعتذر">يعتذر</div>
+                    <div class="statusOption" data-status="حاضر">حاضر</div>
+                </div>
+                <div class="formLabel">التعليق (اختياري)</div>
+                <textarea id="cMsg" placeholder="مثال: بارك الله لكما…"></textarea>
+                <button id="sendComment">إرسال</button>
+                <div id="commentsList"></div>
+                <div style="text-align:center;"><button id="prev">قبل</button><button id="next">بعد</button></div>
+            </div>
+            <div id="pageFooter">
+                Created with love by
+                <a href="https://www.instagram.com/alaleefa?igsh=MW45Z21oM2x0YndjcQ==" target="_blank">@alaleefa_</a> /
+                <a href="https://api.whatsapp.com/send/?phone=%2B6281287575722&text&type=phone_number&app_absent=0&wame_ctl=1">
+                    081287575722
+                </a>
+            </div>
+        </div>
+    </div>
 
-let enterBtn = document.getElementById("enterBtn"),
-    pages = document.getElementById("pages"),
-    cover = document.getElementById("cover"),
-    nav = document.getElementById("nav"),
-    music = document.getElementById("music");
+    <audio id="music" src="music.mp3" loop></audio>
 
-enterBtn.onclick = () => {
-    cover.style.display = "none";
-    pages.style.display = "block";
-    nav.style.display = "flex";
-    music.play();
-
-    document.querySelectorAll('.page-video').forEach(video => {
-        video.play().catch(error => {});
-    });
-
-    let countdownDiv = document.getElementById('countdown');
-    let targetDate = new Date("2026-09-07T00:00:00").getTime();
-    setInterval(() => {
-        let now = Date.now(),
-            diff = targetDate - now;
-        if (diff < 0) diff = 0;
-        let d = Math.floor(diff / 86400000),
-            h = Math.floor((diff % 86400000) / 3600000),
-            m = Math.floor((diff % 3600000) / 60000),
-            s = Math.floor((diff % 60000) / 1000);
-        countdownDiv.querySelector('#d').innerText = d;
-        countdownDiv.querySelector('#h').innerText = h;
-        countdownDiv.querySelector('#m').innerText = m;
-        countdownDiv.querySelector('#s').innerText = s;
-    }, 1000);
-};
-
-document.querySelectorAll('#nav img').forEach(btn => {
-    btn.onclick = () => {
-        document.querySelectorAll('.section')[btn.dataset.go].scrollIntoView({behavior:'smooth'});
-    };
-});
-
-document.querySelectorAll('.siteImage').forEach(img => {
-    img.onclick = () => { window.open('https://maps.app.goo.gl/fipYv9RUQYJmwTDq6','_blank'); };
-});
-
-// =================== نظام التعليقات بواسطة Google Sheet (مشترك ومُعدَّل) ===================
-const API_URL = "https://script.google.com/macros/s/AKfycbwaTVEyiacEWESz4ICwitjq1k1sUr5z8LmEr3izTupzfxHH8q8XQ59mKDFEXV-0TC3C/exec"; 
-
-let statusSelected = "";
-let allData = []; // لتخزين جميع البيانات (التعليقات والردود)
-let mainComments = []; // لتخزين التعليقات الأساسية فقط
-let pageIndex = 0;
-
-document.querySelectorAll('.statusOption').forEach(op => {
-    op.onclick = () => {
-        document.querySelectorAll('.statusOption').forEach(o => o.classList.remove('statusSelected'));
-        op.classList.add('statusSelected');
-        statusSelected = op.dataset.status;
-    };
-});
-
-async function loadComments() {
-    try {
-        const response = await fetch(API_URL + "?action=getComments"); 
-        allData = await response.json();
-        
-        // 1. تصفية التعليقات الأساسية (replyTo فارغ أو غير موجود)
-        mainComments = allData.filter(item => !item.replyTo || item.replyTo === "");
-        mainComments.reverse(); // عرض الأحدث أولاً
-        
-        // 2. إحصاء عدد الردود لكل تعليق أساسي وتخزينها
-        mainComments = mainComments.map(comment => {
-            comment.replies = allData.filter(item => item.replyTo == comment.id);
-            comment.replies.reverse(); // عرض الردود الأحدث أولاً داخل كل تعليق
-            return comment;
+    <script>
+        // منع الحفظ على الصور
+        document.querySelectorAll('img').forEach(img => {
+            img.oncontextmenu = (e) => { e.preventDefault(); };
         });
 
-    } catch (e) {
-        console.error("Failed to load comments:", e);
-        allData = [];
-        mainComments = [];
-    }
-    renderComments();
-}
+        // جلب اسم المدعو من URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const guestName = urlParams.get('guest') || 'علياء';
+        document.getElementById('guestName').innerText = `اسم المدعو/ة: ${guestName}`;
 
-function formatDate(dateString) {
-    if (!dateString) return '';
-    try {
-        const date = dateString.includes('/') ? new Date(dateString) : new Date(parseFloat(dateString));
-        if (isNaN(date)) return dateString;
+        let enterBtn = document.getElementById("enterBtn"),
+            pages = document.getElementById("pages"),
+            cover = document.getElementById("cover"),
+            nav = document.getElementById("nav"),
+            music = document.getElementById("music");
 
-        const dateOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
-        const timeOptions = { hour: '2-digit', minute: '2-digit' };
-        
-        const datePart = date.toLocaleDateString('ar-EG', dateOptions);
-        const timePart = date.toLocaleTimeString('ar-EG', timeOptions);
-        return `${datePart}, ${timePart}`;
-    } catch (e) {
-        return dateString;
-    }
-}
+        // الدخول إلى الدعوة وبدء التشغيل
+        enterBtn.onclick = () => {
+            cover.style.display = "none";
+            pages.style.display = "block";
+            nav.style.display = "flex";
+            music.play();
 
+            document.querySelectorAll('.page-video').forEach(video => {
+                video.play().catch(error => {});
+            });
 
-function renderComments() {
-    let list = document.getElementById('commentsList');
-    let replyCount = document.getElementById('replyCount');
-    list.innerHTML = "";
-    replyCount.innerText = `عدد الردود: ${mainComments.length}`;
+            // بدء العد التنازلي
+            let countdownDiv = document.getElementById('countdown');
+            let targetDate = new Date("2026-09-07T00:00:00").getTime();
+            setInterval(() => {
+                let now = Date.now(),
+                    diff = targetDate - now;
+                if (diff < 0) diff = 0;
+                let d = Math.floor(diff / 86400000),
+                    h = Math.floor((diff % 86400000) / 3600000),
+                    m = Math.floor((diff % 3600000) / 60000),
+                    s = Math.floor((diff % 60000) / 1000);
+                countdownDiv.querySelector('#d').innerText = d;
+                countdownDiv.querySelector('#h').innerText = h;
+                countdownDiv.querySelector('#m').innerText = m;
+                countdownDiv.querySelector('#s').innerText = s;
+            }, 1000);
+        };
 
-    let start = pageIndex * 5;
-    let selected = mainComments.slice(start, start + 5);
+        // التنقل بين الصفحات عبر شريط التنقل
+        document.querySelectorAll('#nav img').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.section')[btn.dataset.go].scrollIntoView({ behavior: 'smooth' });
+            };
+        });
 
-    selected.forEach((c) => {
-        let div = document.createElement('div');
-        div.className = 'commentItem';
-        
-        // المحتوى الأساسي للتعليق
-        const statusText = c.status && c.status.trim() !== "" ? c.status : 'لم يحدد'; // 🛑 التعديل هنا: فحص الحالة قبل العرض
-        
-        div.innerHTML = `
-            <div class="main-info">
-                <b>${c.name}</b> (${statusText})<br>${c.comment || ''}<br>
-                <span class="timeInfo">${formatDate(c.date)}</span>
-            </div>
-            <button class="reply-btn" data-comment-id="${c.id}">رد (${c.replies.length})</button>
-            
-            <div class="reply-form">
-                <div class="formLabel">الاسم (للرد)</div>  
-                <input type="text" class="reply-name-input" placeholder="اسمك">
-                <div class="formLabel">التعليق (للرد)</div> 
-                <textarea class="reply-msg-input" placeholder="الرد..."></textarea>
-                <button class="send-reply-btn">إرسال الرد</button>
-            </div>
-            
-            <div class="replies-container">
-            </div>
-        `;
-        
-        // إضافة الردود الفرعية
-        const repliesContainer = div.querySelector('.replies-container');
-        if (c.replies && c.replies.length > 0) {
-            c.replies.forEach(r => {
-                let replyDiv = document.createElement('div');
-                replyDiv.className = 'reply-item';
-                
-                replyDiv.innerHTML = `
-                    <b>${r.name}:</b> ${r.comment}
-                    <span class="timeInfo" style="display:block;">${formatDate(r.date)}</span>
-                `;
-                repliesContainer.appendChild(replyDiv);
+        // فتح موقع المناسبة
+        document.querySelectorAll('.siteImage').forEach(img => {
+            img.onclick = () => { window.open('https://maps.app.goo.gl/fipYv9RUQYJmwTDq6','_blank'); };
+        });
+
+        // =================== نظام التعليقات بواسطة Google Sheet ===================
+        const API_URL = "https://script.google.com/macros/s/AKfycbwaTVEyiacEWESz4ICwitjq1k1sUr5z8LmEr3izTupzfxHH8q8XQ59mKDFEXV-0TC3C/exec";
+
+        let statusSelected = "";
+        let allData = []; // لتخزين جميع البيانات (التعليقات والردود)
+        let mainComments = []; // لتخزين التعليقات الأساسية فقط
+        let pageIndex = 0;
+
+        // تحديد حالة الحضور
+        document.querySelectorAll('.statusOption').forEach(op => {
+            op.onclick = () => {
+                document.querySelectorAll('.statusOption').forEach(o => o.classList.remove('statusSelected'));
+                op.classList.add('statusSelected');
+                statusSelected = op.dataset.status;
+            };
+        });
+
+        // جلب التعليقات
+        async function loadComments() {
+            try {
+                const response = await fetch(API_URL + "?action=getComments");
+                allData = await response.json();
+
+                // 1. تصفية التعليقات الأساسية (replyTo فارغ أو غير موجود)
+                mainComments = allData.filter(item => !item.replyTo || item.replyTo === "");
+                mainComments.reverse(); // عرض الأحدث أولاً
+
+                // 2. ربط الردود بالتعليقات الأساسية
+                mainComments = mainComments.map(comment => {
+                    comment.replies = allData.filter(item => item.replyTo == comment.id);
+                    comment.replies.reverse(); // عرض الردود الأحدث أولاً داخل كل تعليق
+                    return comment;
+                });
+
+            } catch (e) {
+                console.error("Failed to load comments:", e);
+                allData = [];
+                mainComments = [];
+            }
+            renderComments();
+        }
+
+        // تنسيق التاريخ
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            try {
+                const date = dateString.includes('/') ? new Date(dateString) : new Date(parseFloat(dateString));
+                if (isNaN(date)) return dateString;
+
+                const dateOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
+                const timeOptions = { hour: '2-digit', minute: '2-digit' };
+
+                const datePart = date.toLocaleDateString('ar-EG', dateOptions);
+                const timePart = date.toLocaleTimeString('ar-EG', timeOptions);
+                return `${datePart}, ${timePart}`;
+            } catch (e) {
+                return dateString;
+            }
+        }
+
+        // عرض التعليقات
+        function renderComments() {
+            let list = document.getElementById('commentsList');
+            let replyCount = document.getElementById('replyCount');
+            list.innerHTML = "";
+            replyCount.innerText = `عدد الردود: ${mainComments.length}`;
+
+            // تحديد التعليقات المعروضة حسب رقم الصفحة
+            let start = pageIndex * 5;
+            let selected = mainComments.slice(start, start + 5);
+
+            selected.forEach((c) => {
+                let div = document.createElement('div');
+                div.className = 'commentItem';
+
+                // المحتوى الأساسي للتعليق
+                const statusText = c.status && c.status.trim() !== "" ? c.status : 'لم يحدد';
+
+                div.innerHTML = `
+                        <div class="main-info">
+                            <b>${c.name}</b> (${statusText})<br>${c.comment || ''}<br>
+                            <span class="timeInfo">${formatDate(c.date)}</span>
+                        </div>
+                        <button class="reply-btn" data-comment-id="${c.id}">رد (${c.replies.length})</button>
+                        <div class="reply-form">
+                            <div class="formLabel">الاسم (للرد)</div>
+                            <input type="text" class="reply-name-input" placeholder="اسمك">
+                            <div class="formLabel">التعليق (للرد)</div>
+                            <textarea class="reply-msg-input" placeholder="الرد..."></textarea>
+                            <button class="send-reply-btn">إرسال الرد</button>
+                        </div>
+                        <div class="replies-container">
+                        </div>
+                    `;
+
+                // إضافة الردود الفرعية
+                const repliesContainer = div.querySelector('.replies-container');
+                if (c.replies && c.replies.length > 0) {
+                    c.replies.forEach(r => {
+                        let replyDiv = document.createElement('div');
+                        replyDiv.className = 'reply-item';
+
+                        replyDiv.innerHTML = `
+                                <b>${r.name}:</b> ${r.comment}
+                                <span class="timeInfo" style="display:block;">${formatDate(r.date)}</span>
+                            `;
+                        repliesContainer.appendChild(replyDiv);
+                    });
+                }
+
+                list.appendChild(div);
+            });
+
+            addReplyListeners();
+        }
+
+        // إظهار وإخفاء نموذج الرد
+        function toggleReplyForm(btn) {
+            const form = btn.nextElementSibling;
+            document.querySelectorAll('.reply-form').forEach(f => {
+                if (f !== form) {
+                    f.style.display = 'none';
+                }
+            });
+            form.style.display = (form.style.display === 'block' ? 'none' : 'block');
+        }
+
+        // إضافة مستمعي الأحداث لأزرار الرد
+        function addReplyListeners() {
+            document.querySelectorAll('.reply-btn').forEach(btn => {
+                btn.onclick = () => toggleReplyForm(btn);
+            });
+
+            document.querySelectorAll('.send-reply-btn').forEach(btn => {
+                btn.onclick = (e) => sendReply(e);
             });
         }
-        
-        list.appendChild(div);
-    });
-    
-    addReplyListeners();
-}
 
-function toggleReplyForm(btn) {
-    const form = btn.nextElementSibling;
-    document.querySelectorAll('.reply-form').forEach(f => {
-        if (f !== form) {
-            f.style.display = 'none';
+        // إرسال الرد الفرعي
+        async function sendReply(e) {
+            const form = e.target.closest('.reply-form');
+            const replyBtn = form.previousElementSibling;
+            const parentId = replyBtn.dataset.commentId;
+
+            const replyNameInput = form.querySelector('.reply-name-input');
+            const replyMsgInput = form.querySelector('.reply-msg-input');
+
+            let replyName = replyNameInput.value.trim();
+            let replyMsg = replyMsgInput.value.trim();
+
+            if (!replyName || !replyMsg) {
+                alert("يرجى إدخال الاسم والتعليق للرد");
+                return;
+            }
+
+            const dataToSend = {
+                action: 'addComment',
+                name: replyName,
+                comment: replyMsg,
+                replyTo: parentId,
+                status: ""
+            };
+
+            try {
+                // إرسال البيانات (في هذا المثال، يتم إرسالها إلى Google Sheet API)
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataToSend)
+                });
+
+                replyNameInput.value = "";
+                replyMsgInput.value = "";
+                form.style.display = 'none';
+                pageIndex = 0;
+                await loadComments(); // إعادة تحميل التعليقات لعرض الرد الجديد
+            } catch (error) {
+                alert("فشل إرسال الرد. تأكد من تهيئة Google Sheet API بشكل صحيح.");
+                console.error("Error sending reply:", error);
+            }
         }
-    });
-    form.style.display = (form.style.display === 'block' ? 'none' : 'block');
-}
 
-function addReplyListeners() {
-    document.querySelectorAll('.reply-btn').forEach(btn => {
-        btn.onclick = () => toggleReplyForm(btn);
-    });
+        // إرسال التعليق الأساسي
+        document.getElementById("sendComment").onclick = async () => {
+            let name = document.getElementById('cName').value.trim();
+            let msg = document.getElementById('cMsg').value.trim();
 
-    document.querySelectorAll('.send-reply-btn').forEach(btn => {
-        btn.onclick = (e) => sendReply(e);
-    });
-}
+            if (!name || !statusSelected) {
+                alert("يرجى إدخال الاسم واختيار الحالة (حاضر/يعتذر) قبل الإرسال.");
+                return;
+            }
 
-async function sendReply(e) {
-    const form = e.target.closest('.reply-form');
-    const replyBtn = form.previousElementSibling;
-    const parentId = replyBtn.dataset.commentId; 
+            let data = {
+                action: 'addComment',
+                name,
+                comment: msg,
+                status: statusSelected,
+                replyTo: ""
+            };
 
-    const replyNameInput = form.querySelector('.reply-name-input');
-    const replyMsgInput = form.querySelector('.reply-msg-input');
-    
-    let replyName = replyNameInput.value.trim();
-    let replyMsg = replyMsgInput.value.trim();
+            try {
+                // إرسال البيانات (في هذا المثال، يتم إرسالها إلى Google Sheet API)
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
 
-    if (!replyName || !replyMsg) {
-        alert("يرجى إدخال الاسم والتعليق للرد");
-        return;
-    }
-    
-    const dataToSend = {
-        action: 'addComment', 
-        name: replyName,
-        comment: replyMsg,
-        replyTo: parentId, 
-        status: "" 
-    };
+                // مسح الحقول وتحديث العرض
+                document.getElementById('cName').value = "";
+                document.getElementById('cMsg').value = "";
+                statusSelected = "";
+                document.querySelectorAll('.statusOption').forEach(o => o.classList.remove('statusSelected'));
+                pageIndex = 0;
+                await loadComments(); // إعادة تحميل التعليقات لعرض التعليق الجديد
+            } catch (error) {
+                alert("فشل إرسال التعليق. تأكد من تهيئة Google Sheet API بشكل صحيح.");
+                console.error("Error sending comment:", error);
+            }
+        };
 
-    try {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataToSend)
-        });
-        
-        replyNameInput.value = "";
-        replyMsgInput.value = "";
-        form.style.display = 'none';
-        pageIndex = 0; 
-        await loadComments();
-    } catch (error) {
-        alert("فشل إرسال الرد. تأكد من تهيئة Google Sheet API بشكل صحيح.");
-        console.error("Error sending reply:", error);
-    }
-}
+        // التنقل بين صفحات التعليقات
+        document.getElementById('prev').onclick = () => {
+            if (pageIndex > 0) {
+                pageIndex--;
+                renderComments();
+            }
+        };
+        document.getElementById('next').onclick = () => {
+            if ((pageIndex + 1) * 5 < mainComments.length) {
+                pageIndex++;
+                renderComments();
+            }
+        };
 
-
-// وظيفة إرسال التعليق الأساسي 
-document.getElementById("sendComment").onclick = async () => {
-    let name = document.getElementById('cName').value.trim();
-    let msg = document.getElementById('cMsg').value.trim();
-    
-    if (!name || !statusSelected) {
-        alert("يرجى إدخال الاسم واختيار الحالة (حاضر/يعتذر) قبل الإرسال.");
-        return;
-    }
-    
-    let data = { 
-        action: 'addComment', 
-        name, 
-        comment: msg, 
-        status: statusSelected,
-        replyTo: "" 
-    }; 
-      
-    try {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-
-        document.getElementById('cName').value = "";
-        document.getElementById('cMsg').value = "";
-        statusSelected = "";
-        document.querySelectorAll('.statusOption').forEach(o => o.classList.remove('statusSelected'));
-        pageIndex = 0;
-        await loadComments();
-    } catch (error) {
-        alert("فشل إرسال التعليق. تأكد من تهيئة Google Sheet API بشكل صحيح.");
-        console.error("Error sending comment:", error);
-    }
-};
-
-document.getElementById('prev').onclick = () => {
-    if (pageIndex > 0) {
-        pageIndex--;
-        renderComments();
-    }
-};
-document.getElementById('next').onclick = () => {
-    if ((pageIndex + 1) * 5 < mainComments.length) {
-        pageIndex++;
-        renderComments();
-    }
-};
-
-// تحميل أولي
-loadComments();
-
-</script>
+        // تحميل أولي للتعليقات عند بدء التشغيل
+        loadComments();
+    </script>
 </body>
 </html>
