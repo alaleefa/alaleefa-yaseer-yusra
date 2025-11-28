@@ -419,21 +419,32 @@
             img.oncontextmenu = (e) => { e.preventDefault(); };
         });
 
-        // =================== قراءة اسم المدعو (الطريقة الأبسط والأكثر موثوقية) ===================
+        // =================== قراءة اسم المدعو (مع دعم التحديث) ===================
         const urlParams = new URLSearchParams(window.location.search);
         let guestName = 'علياء'; // الاسم الافتراضي
 
-        if (urlParams.has('guest')) {
-            // المتصفح يقوم بفك تشفير الـ URL Encoding تلقائيًا (مثل: %D9%8A -> ي)
+        // 1. محاولة استرجاع الاسم من الذاكرة المؤقتة (Session Storage)
+        const storedName = sessionStorage.getItem('currentGuestName');
+        
+        if (storedName) {
+            guestName = storedName;
+        } 
+        
+        // 2. إذا لم يكن الاسم موجوداً في الذاكرة، نتحقق من الرابط
+        else if (urlParams.has('guest')) {
+            // المتصفح يفك تشفير الـ URL Encoding تلقائيًا (مثل: %D9%8A -> ي)
             let rawGuestName = urlParams.get('guest'); 
 
             if (rawGuestName && rawGuestName.trim() !== "") {
                 guestName = rawGuestName;
-            }
+                
+                // حفظ الاسم في الذاكرة المؤقتة ليبقى بعد التحديث
+                sessionStorage.setItem('currentGuestName', guestName);
 
-            // تنظيف الرابط فوراً بعد القراءة لإخفاء القيمة
-            const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            history.replaceState(null, '', cleanURL);
+                // تنظيف الرابط فوراً بعد القراءة لإخفاء القيمة
+                const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                history.replaceState(null, '', cleanURL);
+            }
         }
 
         document.getElementById('guestName').innerText = `اسم المدعو/ة: ${guestName}`;
