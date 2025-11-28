@@ -424,24 +424,20 @@
         // ----------------------------------------------------
         function decodeBase64(str) {
             try {
-                // فك تشفير Base64 إلى Binary String
+                // فك التشفير Base64 إلى رموز ثنائية (Binary String)
                 const binaryStr = atob(str);
-                // تحويل Binary String إلى ArrayBuffer لفك تشفير UTF-8
-                const len = binaryStr.length;
-                const bytes = new Uint8Array(len);
-                for (let i = 0; i < len; i++) {
-                    bytes[i] = binaryStr.charCodeAt(i);
-                }
-                // استخدام TextDecoder لفك تشفير UTF-8 بشكل صحيح
+                // تحويل الـ Binary String إلى مصفوفة بايت (Uint8Array)
+                const bytes = Uint8Array.from(binaryStr, c => c.charCodeAt(0));
+                // استخدام TextDecoder لفك تشفير UTF-8
                 const decoder = new TextDecoder('utf-8');
                 return decoder.decode(bytes);
             } catch (e) {
-                console.error("Failed to decode Base64:", e);
+                console.error("خطأ في فك التشفير Base64:", e);
                 return 'خطأ في الاسم'; // قيمة في حال فشل فك التشفير
             }
         }
 
-        // =================== قراءة اسم المدعو (مع فك التشفير) ===================
+        // =================== قراءة اسم المدعو (مع فك التشفير وتنظيف الرابط) ===================
         const urlParams = new URLSearchParams(window.location.search);
         let guestName = 'علياء'; // الاسم الافتراضي
 
@@ -449,15 +445,18 @@
             const encodedName = urlParams.get('guest');
             
             // فك التشفير وعرض الاسم
-            guestName = decodeBase64(encodedName);
-            
-            // (اختياري) تنظيف الرابط بعد القراءة لإخفاء القيمة المشفرة
+            const decodedName = decodeBase64(encodedName);
+            if (decodedName && decodedName !== 'خطأ في الاسم') {
+                guestName = decodedName;
+            }
+
+            // تنظيف الرابط بعد القراءة لإخفاء القيمة المشفرة
             const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
             history.replaceState(null, '', cleanURL);
         }
         
         document.getElementById('guestName').innerText = `اسم المدعو/ة: ${guestName}`;
-        // =========================================================================
+        // ====================================================================================
 
         let enterBtn = document.getElementById("enterBtn"),
             pages = document.getElementById("pages"),
