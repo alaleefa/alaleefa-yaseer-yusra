@@ -418,43 +418,31 @@
         document.querySelectorAll('img').forEach(img => {
             img.oncontextmenu = (e) => { e.preventDefault(); };
         });
-
-        // ----------------------------------------------------
-        // وظيفة فك تشفير Base64 مع دعم UTF-8 للأحرف العربية
-        // ----------------------------------------------------
-        function decodeBase64(str) {
-            try {
-                // فك التشفير Base64 إلى رموز ثنائية (Binary String)
-                const binaryStr = atob(str);
-                // تحويل الـ Binary String إلى مصفوفة بايت (Uint8Array)
-                const bytes = Uint8Array.from(binaryStr, c => c.charCodeAt(0));
-                // استخدام TextDecoder لفك تشفير UTF-8
-                const decoder = new TextDecoder('utf-8');
-                return decoder.decode(bytes);
-            } catch (e) {
-                console.error("خطأ في فك التشفير Base64:", e);
-                return 'خطأ في الاسم'; // قيمة في حال فشل فك التشفير
-            }
-        }
-
-        // =================== قراءة اسم المدعو (مع فك التشفير وتنظيف الرابط) ===================
+        
+        // =================== قراءة اسم المدعو (الحل المبسّط لفك التشفير) ===================
         const urlParams = new URLSearchParams(window.location.search);
         let guestName = 'علياء'; // الاسم الافتراضي
 
         if (urlParams.has('guest')) {
             const encodedName = urlParams.get('guest');
             
-            // فك التشفير وعرض الاسم
-            const decodedName = decodeBase64(encodedName);
-            if (decodedName && decodedName !== 'خطأ في الاسم') {
-                guestName = decodedName;
-            }
+            try {
+                // 1. فك تشفير Base64 إلى Binary String (atob)
+                const base64Decoded = atob(encodedName); 
+                
+                // 2. تحويل الـ Binary String الذي يحوي رموز UTF-8 (العربية) إلى نص مقروء
+                guestName = decodeURIComponent(escape(base64Decoded));
 
-            // تنظيف الرابط بعد القراءة لإخفاء القيمة المشفرة
-            const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            history.replaceState(null, '', cleanURL);
+                // تنظيف الرابط بعد القراءة لإخفاء القيمة المشفرة
+                const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                history.replaceState(null, '', cleanURL);
+
+            } catch (e) {
+                console.error("خطأ في فك التشفير:", e);
+                guestName = 'خطأ في الاسم';
+            }
         }
-        
+
         document.getElementById('guestName').innerText = `اسم المدعو/ة: ${guestName}`;
         // ====================================================================================
 
