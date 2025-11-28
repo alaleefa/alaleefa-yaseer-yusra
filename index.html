@@ -419,10 +419,45 @@
             img.oncontextmenu = (e) => { e.preventDefault(); };
         });
 
-        // جلب اسم المدعو من URL
+        // ----------------------------------------------------
+        // وظيفة فك تشفير Base64 مع دعم UTF-8 للأحرف العربية
+        // ----------------------------------------------------
+        function decodeBase64(str) {
+            try {
+                // فك تشفير Base64 إلى Binary String
+                const binaryStr = atob(str);
+                // تحويل Binary String إلى ArrayBuffer لفك تشفير UTF-8
+                const len = binaryStr.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryStr.charCodeAt(i);
+                }
+                // استخدام TextDecoder لفك تشفير UTF-8 بشكل صحيح
+                const decoder = new TextDecoder('utf-8');
+                return decoder.decode(bytes);
+            } catch (e) {
+                console.error("Failed to decode Base64:", e);
+                return 'خطأ في الاسم'; // قيمة في حال فشل فك التشفير
+            }
+        }
+
+        // =================== قراءة اسم المدعو (مع فك التشفير) ===================
         const urlParams = new URLSearchParams(window.location.search);
-        const guestName = urlParams.get('guest') || 'علياء';
+        let guestName = 'علياء'; // الاسم الافتراضي
+
+        if (urlParams.has('guest')) {
+            const encodedName = urlParams.get('guest');
+            
+            // فك التشفير وعرض الاسم
+            guestName = decodeBase64(encodedName);
+            
+            // (اختياري) تنظيف الرابط بعد القراءة لإخفاء القيمة المشفرة
+            const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            history.replaceState(null, '', cleanURL);
+        }
+        
         document.getElementById('guestName').innerText = `اسم المدعو/ة: ${guestName}`;
+        // =========================================================================
 
         let enterBtn = document.getElementById("enterBtn"),
             pages = document.getElementById("pages"),
@@ -635,7 +670,6 @@
             };
 
             try {
-                // إرسال البيانات (في هذا المثال، يتم إرسالها إلى Google Sheet API)
                 const response = await fetch(API_URL, {
                     method: "POST",
                     mode: "no-cors",
@@ -675,7 +709,6 @@
             };
 
             try {
-                // إرسال البيانات (في هذا المثال، يتم إرسالها إلى Google Sheet API)
                 const response = await fetch(API_URL, {
                     method: "POST",
                     mode: "no-cors",
